@@ -1,0 +1,18 @@
+FROM php:8.0.20-apache
+
+
+RUN apt update && apt install -y net-tools vim curl iputils-ping wget curl iproute2
+RUN docker-php-ext-install mysqli
+
+COPY ./certs/private.key /etc/ssl/private/ssl-cert-snakeoil.key
+COPY ./certs/certificate.crt /etc/ssl/certs/ssl-cert-snakeoil.pem 
+COPY ./php.ini /usr/local/etc/php/php.ini
+COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY ./default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+
+RUN pecl install xdebug-3.2.1
+RUN docker-php-ext-enable xdebug
+
+RUN a2enmod rewrite && a2enmod ssl && a2ensite default-ssl
+
+USER root

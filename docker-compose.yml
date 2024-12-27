@@ -1,0 +1,56 @@
+version: "3"
+services:
+  php:
+    container_name: apache-php-develop
+    image: apache-php-develop
+    hostname: apache-php
+    build:
+      context: ./php
+      dockerfile: dockerfile
+    networks:
+      - internal
+    ports: 
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./php/html/:/var/www/html/ 
+      - ./php/tmp:/app
+      
+  mysql:
+    container_name: mysql-php-develop
+    hostname: mysql-php
+    image: mysql:8.0.30-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_USER: dbadmin 
+      MYSQL_PASSWORD: example
+    networks:
+      - internal
+    ports: 
+      - "3306:3306"
+    volumes:
+      - ./mysql/tmp/:/opt/tmp/
+      - ./mysql/init:/docker-entrypoint-initdb.d/
+
+  admin:
+      container_name: php-my-admin-develop
+      hostname: php-my-admin
+      image: phpmyadmin:5.2.1-apache
+      environment:
+        MYSQL_ROOT_PASSWORD: toor
+        MYSQL_USER: dbadmin 
+        MYSQL_PASSWORD: example
+        PMA_HOST: mysql-php
+      networks:
+        - internal
+      ports: 
+        - "8000:80"
+      volumes:
+        - ./mysql/tmp/:/opt/tmp/
+        - ./mysql/init:/docker-entrypoint-initdb.d/
+
+networks:
+  internal:
+    driver: bridge
+
+    
